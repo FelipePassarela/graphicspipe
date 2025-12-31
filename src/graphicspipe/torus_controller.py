@@ -22,18 +22,18 @@ class TorusController:
         }
         self._current_state = "min"
 
-    def update(self, local_coords: np.ndarray) -> np.ndarray:
+    def update(self, mesh: np.ndarray) -> np.ndarray:
         now = time.time()
         if now - self._previous_toggle >= self._interval:
             self._previous_toggle = now
             self._current_state = self._next_state()
-            return self.create_torus()
-        return local_coords
+            return self.create_mesh()
+        return mesh
 
     def _next_state(self) -> str:
         return self._states[self._current_state]["next"]
 
-    def create_torus(self) -> np.ndarray:
+    def create_mesh(self) -> np.ndarray:
         nrings = self._states[self._current_state]["nrings"]
         tube_vertices = self._states[self._current_state]["tube_vertices"]
         return mesh.torus(1, 0.3, nrings=nrings, tube_vertices=tube_vertices)

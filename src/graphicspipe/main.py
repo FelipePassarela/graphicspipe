@@ -14,11 +14,13 @@ FRAME_DELAY = 1 / 60.0
 
 def main() -> None:
     torus_controller = TorusController(interval=3)
-    local_coords = torus_controller.create_torus()
 
-    translation = (0, 0, 1.5)
-    scale = 1.0 / np.max(np.abs(local_coords))
-    rotation_y = 0.0
+    model = {
+        "mesh": torus_controller.create_mesh(),
+        "translation": np.array([0.0, 0.0, 1.8]),
+        "scale": np.array([1.0, 1.0, 1.0]),
+        "rotation": np.array([0.0, 0.0, 0.0]),
+    }
 
     camera = {
         "yaw": 0.0,
@@ -31,16 +33,16 @@ def main() -> None:
 
     os.system("cls" if os.name == "nt" else "clear")
     while True:
-        rotation_y += np.radians(180) * FRAME_DELAY
+        model["rotation"][1] += np.radians(180) * FRAME_DELAY
 
-        local_coords = torus_controller.update(local_coords)
+        model["mesh"] = torus_controller.update(model["mesh"])
 
         world_matrix = math.compose(
-            translations=translation,
-            rotations=(0, rotation_y, 0),
-            scales=(scale, scale, scale),
+            translations=model["translation"],
+            rotations=model["rotation"],
+            scales=model["scale"],
         )
-        world_coords = local_coords @ world_matrix  # objects in row vector format
+        world_coords = model["mesh"] @ world_matrix  # objects in row vector format
 
         # view transformation
         camera["pitch"] = np.clip(camera["pitch"], -89, 89)
@@ -56,7 +58,7 @@ def main() -> None:
 
         # perspective projection
         xy = view_coords[:, :2]
-        z = -np.expand_dims(z, axis=1)
+        z = -np.expand_dims(z, axis=1)  # make z positive to avoid inverted projection
         projected = xy / z
 
         # viewport transformation
