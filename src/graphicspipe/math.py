@@ -73,7 +73,7 @@ def look_at(eye: np.ndarray, target: np.ndarray, up: np.ndarray) -> np.ndarray:
     target = np.astype(target, float)
     up = np.astype(up, float)
 
-    z = (eye - target)
+    z = eye - target
     z /= np.linalg.norm(z)
     x = np.cross(up, z)
     x /= np.linalg.norm(x)
@@ -88,3 +88,13 @@ def look_at(eye: np.ndarray, target: np.ndarray, up: np.ndarray) -> np.ndarray:
         ]
     )
     return view_matrix
+
+
+def forward(yaw: float, pitch: float) -> np.ndarray:
+    return np.array(
+        [
+            np.cos(pitch) * np.sin(yaw),
+            np.sin(pitch),
+            np.cos(pitch) * np.cos(yaw),
+        ]
+    )

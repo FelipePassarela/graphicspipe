@@ -20,10 +20,14 @@ def main() -> None:
     scale = 1.0 / np.max(np.abs(local_coords))
     rotation_y = 0.0
 
-    # camera parameters
-    eye = np.array([0.0, 0.0, 0.0])
-    target = np.array([0.0, 0.0, 1.0])
-    up = np.array([0.0, 1.0, 0.0])
+    camera = {
+        "yaw": 0.0,
+        "pitch": 0.0,
+        "eye": np.array([0.0, 0.0, 0.0]),
+        "up": np.array([0.0, 1.0, 0.0]),
+        "near": -0.01,  # camera is pointing to -Z
+        "far": -100.0,
+    }
 
     os.system("cls" if os.name == "nt" else "clear")
     while True:
@@ -39,12 +43,20 @@ def main() -> None:
         world_coords = local_coords @ world_matrix  # objects in row vector format
 
         # view transformation
-        view_matrix = math.look_at(eye, target, up)
+        camera["pitch"] = np.clip(camera["pitch"], -89, 89)
+        forward = math.forward(np.radians(camera["yaw"]), np.radians(camera["pitch"]))
+        target = camera["eye"] + forward
+        view_matrix = math.look_at(camera["eye"], target, camera["up"])
         view_coords = world_coords @ view_matrix
 
+        z = view_coords[:, 2]
+        clipping_mask = (z < camera["near"]) & (z > camera["far"])
+        view_coords = view_coords[clipping_mask]
+        z = z[clipping_mask]
+
         # perspective projection
-        z = np.expand_dims(view_coords[:, 2], axis=1)
         xy = view_coords[:, :2]
+        z = -np.expand_dims(z, axis=1)
         projected = xy / z
 
         # viewport transformation
