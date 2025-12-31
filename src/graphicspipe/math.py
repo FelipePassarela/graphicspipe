@@ -66,3 +66,25 @@ def compose(translations: tuple, rotations: tuple, scales: tuple) -> np.ndarray:
     Rz = rotation_z(rotations[2])
     S = scaling(*scales)
     return S @ Rx @ Ry @ Rz @ T
+
+
+def look_at(eye: np.ndarray, target: np.ndarray, up: np.ndarray) -> np.ndarray:
+    eye = np.astype(eye, float)
+    target = np.astype(target, float)
+    up = np.astype(up, float)
+
+    z = (eye - target)
+    z /= np.linalg.norm(z)
+    x = np.cross(up, z)
+    x /= np.linalg.norm(x)
+    y = np.cross(z, x)
+
+    view_matrix = np.array(
+        [
+            [x[0], y[0], z[0], 0],
+            [x[1], y[1], z[1], 0],
+            [x[2], y[2], z[2], 0],
+            [-np.dot(x, eye), -np.dot(y, eye), -np.dot(z, eye), 1],
+        ]
+    )
+    return view_matrix

@@ -20,6 +20,11 @@ def main() -> None:
     scale = 1.0 / np.max(np.abs(local_coords))
     rotation_y = 0.0
 
+    # camera parameters
+    eye = np.array([0.0, 0.0, 0.0])
+    target = np.array([0.0, 0.0, 1.0])
+    up = np.array([0.0, 1.0, 0.0])
+
     os.system("cls" if os.name == "nt" else "clear")
     while True:
         rotation_y += np.radians(180) * FRAME_DELAY
@@ -33,8 +38,11 @@ def main() -> None:
         )
         world_coords = local_coords @ world_matrix  # objects in row vector format
 
+        # view transformation
+        view_matrix = math.look_at(eye, target, up)
+        view_coords = world_coords @ view_matrix
+
         # perspective projection
-        view_coords = world_coords.copy()
         z = np.expand_dims(view_coords[:, 2], axis=1)
         xy = view_coords[:, :2]
         projected = xy / z
