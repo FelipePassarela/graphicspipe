@@ -4,7 +4,8 @@ import time
 
 import numpy as np
 
-from graphicspipe import math, mesh
+from graphicspipe import math
+from graphicspipe.torus_controller import TorusController
 
 SCREEN_W = 120
 SCREEN_H = 40
@@ -12,24 +13,18 @@ FRAME_DELAY = 1 / 60.0
 
 
 def main() -> None:
-    local_coords = mesh.torus(1, 0.3, nrings=15, tube_vertices=100)
+    torus_controller = TorusController(interval=3)
+    local_coords = torus_controller.create_torus()
 
     translation = (0, 0, 1.5)
     scale = 1.0 / np.max(np.abs(local_coords))
     rotation_y = 0.0
 
-    previus_ring_toggle = time.time()
-    is_fully_ringed = False
-
     os.system("cls" if os.name == "nt" else "clear")
     while True:
         rotation_y += np.radians(180) * FRAME_DELAY
 
-        now = time.time()
-        if now - previus_ring_toggle >= 5.0:
-            previus_ring_toggle = now
-            is_fully_ringed = not is_fully_ringed
-            local_coords = update_torus(is_fully_ringed)
+        local_coords = torus_controller.update(local_coords)
 
         world_matrix = math.compose(
             translations=translation,
@@ -59,14 +54,6 @@ def main() -> None:
         display(viewport)
 
         time.sleep(FRAME_DELAY)
-
-
-def update_torus(full_ringed):
-    if full_ringed:
-        local_coords = mesh.torus(1, 0.3, nrings=300, tube_vertices=100)
-    else:
-        local_coords = mesh.torus(1, 0.3, nrings=15, tube_vertices=100)
-    return local_coords
 
 
 def display(viewport):

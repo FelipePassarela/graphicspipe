@@ -13,8 +13,8 @@ def parse(filename: str) -> np.ndarray:
 
 
 def torus(R: float, r: float, nrings: int = 15, tube_vertices: int = 30) -> np.ndarray:
-    u_thetas = np.linspace(0, 2 * np.pi, nrings)
-    v_thetas = np.linspace(0, 2 * np.pi, tube_vertices)
+    u_thetas = np.linspace(0, 2 * np.pi, nrings + 1)
+    v_thetas = np.linspace(0, 2 * np.pi, tube_vertices + 1)
     vertices = []
     for u in u_thetas:
         for v in v_thetas:
