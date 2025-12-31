@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 
 import numpy as np
@@ -39,11 +40,11 @@ def main() -> None:
         screen_coords = np.stack([sx, sy], axis=1)
         screen_coords = np.round(screen_coords).astype(np.int32)
 
-        viewport = np.zeros((SCREEN_H, SCREEN_W), dtype=np.uint8)
-        viewport[:] = ord(" ")
-        for x, y in screen_coords:
-            if 0 <= x < SCREEN_W and 0 <= y < SCREEN_H:
-                viewport[y, x] = ord("*")
+        viewport = np.full((SCREEN_H, SCREEN_W), ord(" "), dtype=np.uint8)
+        xs = screen_coords[:, 0]
+        ys = screen_coords[:, 1]
+        mask = (xs >= 0) & (xs < SCREEN_W) & (ys >= 0) & (ys < SCREEN_H)
+        viewport[ys[mask], xs[mask]] = ord("*")
 
         display(viewport)
 
@@ -52,10 +53,10 @@ def main() -> None:
 
 def display(viewport):
     os.system("cls" if os.name == "nt" else "clear")
-    for row in viewport:
-        for c in row:
-            print(chr(c), end="")
-        print()
+    lines = [bytes(row).decode("ascii") for row in viewport]
+    frame = "\n".join(lines)
+    sys.stdout.write("\x1b[H" + frame + "\n")
+    sys.stdout.flush()
 
 
 if __name__ == "__main__":
