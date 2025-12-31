@@ -18,6 +18,7 @@ def main() -> None:
     scale = 1.0 / np.max(np.abs(local_coords))
     rotation_y = 0.0
 
+    os.system("cls" if os.name == "nt" else "clear")
     while True:
         rotation_y += np.radians(180) * FRAME_DELAY
 
@@ -52,10 +53,9 @@ def main() -> None:
 
 
 def display(viewport):
-    os.system("cls" if os.name == "nt" else "clear")
     lines = [bytes(row).decode("ascii") for row in viewport]
     frame = "\n".join(lines)
-    sys.stdout.write("\x1b[H" + frame + "\n")
+    sys.stdout.write("\x1b[H" + frame)
     sys.stdout.flush()
 
 
