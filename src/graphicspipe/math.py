@@ -91,10 +91,11 @@ def look_at(eye: np.ndarray, target: np.ndarray, up: np.ndarray) -> np.ndarray:
 
 
 def forward(yaw: float, pitch: float) -> np.ndarray:
-    return np.array(
+    forward = np.array(
         [
             np.cos(pitch) * np.sin(yaw),
             np.sin(pitch),
             np.cos(pitch) * np.cos(yaw),
         ]
     )
+    return forward / np.linalg.norm(forward)
