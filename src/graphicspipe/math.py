@@ -92,7 +92,7 @@ def perspective(fov: float, near: float, far: float, aspect: float) -> np.ndarra
         [
             [f / aspect, 0.0, 0.0, 0.0],
             [0.0, f, 0.0, 0.0],
-            [0.0, 0.0, (far + near) / (near - far), 1.0],
-            [0.0, 0.0, (2.0 * far * near) / (near - far), 0.0],
+            [0.0, 0.0, (far + near) / (far - near), 1.0],
+            [0.0, 0.0, -(2.0 * far * near) / (far - near), 0.0],
         ]
     )

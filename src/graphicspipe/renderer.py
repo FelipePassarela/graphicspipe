@@ -46,11 +46,10 @@ def reder_faces(
             -v1_w <= v1[1] <= v1_w and -v2_w <= v2[1] <= v2_w and -v3_w <= v3[1] <= v3_w
         ):
             continue
-        # TODO: implement z-clipping properly
-        # if not (
-        #     -v1_w <= v1[2] <= v1_w and -v2_w <= v2[2] <= v2_w and -v3_w <= v3[2] <= v3_w
-        # ):
-        #     continue
+        if not (
+            -v1_w <= v1[2] <= v1_w and -v2_w <= v2[2] <= v2_w and -v3_w <= v3[2] <= v3_w
+        ):
+            continue
 
         v1 /= v1[3]
         v2 /= v2[3]
