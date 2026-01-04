@@ -1,6 +1,29 @@
-# 3D ASCII Graphics Torus
+# 3D ASCII Graphics Pipeline
 
-This project demonstrates a ASCII rendering of a rotating torus (donut shape) in the terminal. The rendering pipeline is implemented in Python,  without relying on any external graphics libraries.
+This project demonstrates a ASCII rendering of a plane in the terminal. The rendering pipeline is implemented in Python, without relying on any external graphics libraries.
+
+## How to Run
+
+1. Install the required dependencies:
+
+```bash
+   pip install -r requirements.txt
+```
+
+1. Run the main script:
+
+```bash
+    cd src
+    python -m graphicspipe.main
+```
+
+## Snapshots
+
+<img src="figures/example1.png" alt="drawing" width="1000"/>
+
+<img src="figures/example2.png" alt="drawing" width="1000"/>
+
+<img src="figures/example3.png" alt="drawing" width="1000"/>
 
 ## Video Demonstration
 

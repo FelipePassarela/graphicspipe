@@ -10,5 +10,4 @@ wheels/
 .venv
 
 # User specific files
-assets/
 .vscode/

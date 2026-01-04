@@ -1,15 +1,37 @@
 import numpy as np
 
 
-def parse(filename: str) -> np.ndarray:
+def parse(filename: str) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     vertices = []
+    normals = []
+    faces = []
+
     with open(filename, "r") as f:
         for line in f:
             if line.startswith("v "):
                 parts = line.strip().split()
                 x, y, z = map(float, parts[1:4])
                 vertices.append([x, y, z, 1])
-    return np.array(vertices)
+            elif line.startswith("vn "):
+                parts = line.strip().split()
+                nx, ny, nz = map(float, parts[1:4])
+                normals.append([nx, ny, nz])
+            elif line.startswith("f "):
+                parts = line.strip().split()[1:]
+                face = []
+                for part in parts:
+                    vals = part.split("/")
+                    v_idx = int(vals[0]) - 1
+                    n_idx = int(vals[2]) - 1 if len(vals) >= 3 and vals[2] else -1
+                    face.append([v_idx, n_idx])
+                # triangulate if face has more than 3 vertices
+                for i in range(1, len(face) - 1):
+                    faces.append([face[0], face[i], face[i + 1]])
+
+    vertices = np.array(vertices, dtype=float)
+    normals = np.array(normals, dtype=float)
+    faces = np.array(faces, dtype=int)
+    return vertices, normals, faces
 
 
 def torus(R: float, r: float, nrings: int = 15, tube_vertices: int = 30) -> np.ndarray:
