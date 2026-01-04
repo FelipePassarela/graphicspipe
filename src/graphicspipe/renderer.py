@@ -59,7 +59,7 @@ def render_faces(
         )
 
         # Backface culling
-        area = edge_function(s1, s2, s3)
+        area = edge_function(s1, s3, s2)
         if area <= 0:
             continue
         inv_area = 1.0 / area
@@ -83,9 +83,9 @@ def render_faces(
         for py in range(min_y, max_y + 1):
             for px in range(min_x, max_x + 1):
                 pixel = px + 0.5, py + 0.5
-                w0 = edge_function(s2, s3, pixel)
-                w1 = edge_function(s3, s1, pixel)
-                w2 = edge_function(s1, s2, pixel)
+                w0 = edge_function(s3, s2, pixel)
+                w1 = edge_function(s1, s3, pixel)
+                w2 = edge_function(s2, s1, pixel)
 
                 inside_triangle = w0 >= 0.0 and w1 >= 0.0 and w2 >= 0.0
                 if inside_triangle:

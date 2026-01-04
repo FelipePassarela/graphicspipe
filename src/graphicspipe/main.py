@@ -41,7 +41,7 @@ def main() -> None:
     }
 
     light_source = {
-        "position": np.array([-5.0, 5.0, -5.0]),
+        "position": np.array([-1.0, -5.0, 5.0]),
         "direction": np.array([0.0, 0.0, 1.0]),
     }
     light_source["direction"] /= np.array([0.0, 0.0, 0.0]) - light_source["position"]
