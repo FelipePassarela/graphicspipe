@@ -70,8 +70,7 @@ def render_faces(
         n3 = normals[face[2, 1]]
         mean_normal = (n1 + n2 + n3) / 3.0
 
-        light_adjustment = 1 ** (1 / 1.8)  # increase brightness of objects
-        intensity = np.dot(mean_normal, -light_dir) * light_adjustment
+        intensity = np.dot(mean_normal, -light_dir)
         intensity = max(0.0, min(1.0, intensity))
         shade_idx = int(intensity * 4)
 
