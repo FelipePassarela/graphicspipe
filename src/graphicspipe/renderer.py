@@ -1,5 +1,4 @@
 import sys
-from typing import Tuple
 
 import numpy as np
 from numba import njit
@@ -7,27 +6,20 @@ from numba import njit
 
 @njit(cache=True)
 def render_faces(
+    viewport: np.ndarray,
+    z_buffer: np.ndarray,
     faces: np.ndarray,
     clip_coords: np.ndarray,
     normals: np.ndarray,
     light_dir: np.ndarray,
     screen_w: int,
     screen_h: int,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    sx_arr = np.empty(len(faces), dtype=np.int32)
-    sy_arr = np.empty(len(faces), dtype=np.int32)
-    shade_arr = np.empty(len(faces), dtype=np.int32)
-    count = 0
-
+) -> None:
     for i in range(len(faces)):
         face = faces[i]
-        v1_idx = face[0, 0]
-        v2_idx = face[1, 0]
-        v3_idx = face[2, 0]
-
-        v1 = clip_coords[v1_idx]
-        v2 = clip_coords[v2_idx]
-        v3 = clip_coords[v3_idx]
+        v1 = clip_coords[face[0, 0]].copy()
+        v2 = clip_coords[face[1, 0]].copy()
+        v3 = clip_coords[face[2, 0]].copy()
 
         v1_w = v1[3]
         v2_w = v2[3]
@@ -51,47 +43,66 @@ def render_faces(
         ):
             continue
 
-        v1 /= v1[3]
-        v2 /= v2[3]
-        v3 /= v3[3]
+        v1 /= v1_w
+        v2 /= v2_w
+        v3 /= v3_w
+
+        # Screen coordinates
+        s1 = np.array(
+            [(v1[0] + 1.0) * 0.5 * screen_w, (1.0 - v1[1]) * 0.5 * screen_h, v1[2]]
+        )
+        s2 = np.array(
+            [(v2[0] + 1.0) * 0.5 * screen_w, (1.0 - v2[1]) * 0.5 * screen_h, v2[2]]
+        )
+        s3 = np.array(
+            [(v3[0] + 1.0) * 0.5 * screen_w, (1.0 - v3[1]) * 0.5 * screen_h, v3[2]]
+        )
 
         # Backface culling
-        # This is currently disabled because, for now, only small vertices on the center
-        # of the faces are rendered, so backface culling would make the scene feeling
-        # empty.
-        # area = (v2[0] - v1[0]) * (v3[1] - v1[1]) - (v3[0] - v1[0]) * (v2[1] - v1[1])
-        # if area <= 0:
-        #     continue
-
-        center_x = (v1[0] + v2[0] + v3[0]) / 3.0
-        center_y = (v1[1] + v2[1] + v3[1]) / 3.0
-        sx = int((center_x + 1) * screen_w / 2.0)
-        sy = int((1 - center_y) * screen_h / 2.0)
-
-        if not (0 <= sx < screen_w and 0 <= sy < screen_h):
+        area = edge_function(s1, s2, s3)
+        if area <= 0:
             continue
+        inv_area = 1.0 / area
 
-        n1_idx = face[0, 1]
-        n2_idx = face[1, 1]
-        n3_idx = face[2, 1]
+        # Light intensity
+        n1 = normals[face[0, 1]]
+        n2 = normals[face[1, 1]]
+        n3 = normals[face[2, 1]]
+        mean_normal = (n1 + n2 + n3) / 3.0
 
-        n1 = normals[n1_idx]
-        n2 = normals[n2_idx]
-        n3 = normals[n3_idx]
-        n1_intensity = np.dot(n1, -light_dir)
-        n2_intensity = np.dot(n2, -light_dir)
-        n3_intensity = np.dot(n3, -light_dir)
+        light_adjustment = 1 ** (1 / 1.8)  # increase brightness of objects
+        intensity = np.dot(mean_normal, -light_dir) * light_adjustment
+        intensity = max(0.0, min(1.0, intensity))
+        shade_idx = int(intensity * 4)
 
-        intensity = (n1_intensity + n2_intensity + n3_intensity) / 3.0
-        intensity = max(0.0, intensity)
-        shade_index = min(int(5 * intensity), 4)
+        # Triangle bounding box
+        min_x = max(0, int(min(s1[0], s2[0], s3[0])))
+        max_x = min(screen_w - 1, int(max(s1[0], s2[0], s3[0])))
+        min_y = max(0, int(min(s1[1], s2[1], s3[1])))
+        max_y = min(screen_h - 1, int(max(s1[1], s2[1], s3[1])))
 
-        sx_arr[count] = sx
-        sy_arr[count] = sy
-        shade_arr[count] = shade_index
-        count += 1
+        for py in range(min_y, max_y + 1):
+            for px in range(min_x, max_x + 1):
+                pixel = px + 0.5, py + 0.5
+                w0 = edge_function(s2, s3, pixel)
+                w1 = edge_function(s3, s1, pixel)
+                w2 = edge_function(s1, s2, pixel)
 
-    return sx_arr[:count], sy_arr[:count], shade_arr[:count]
+                inside_triangle = w0 >= 0.0 and w1 >= 0.0 and w2 >= 0.0
+                if inside_triangle:
+                    w0 *= inv_area
+                    w1 *= inv_area
+                    w2 *= inv_area
+
+                    z = w0 * s1[2] + w1 * s2[2] + w2 * s3[2]
+                    if z < z_buffer[py, px]:
+                        z_buffer[py, px] = z
+                        viewport[py, px] = shade_idx
+
+
+@njit(cache=True)
+def edge_function(a: np.ndarray, b: np.ndarray, p: np.ndarray) -> float:
+    return (p[0] - a[0]) * (b[1] - a[1]) - (p[1] - a[1]) * (b[0] - a[0])
 
 
 def display(
@@ -101,7 +112,10 @@ def display(
     camera: dict = None,
     dt: float = None,
 ) -> None:
-    lines = ["".join(c for c in row) for row in viewport]
+    shade_chars = np.array(list(" ░▒▓█"))
+    viewport_chars = shade_chars[viewport]
+    lines = ["".join(row) for row in viewport_chars]
+
     message = "Graphicspipe - Press ESC to quit"
     lines[screen_h - 1] = message.ljust(screen_w)
 

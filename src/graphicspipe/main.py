@@ -56,6 +56,9 @@ def main() -> None:
     os.system("cls" if os.name == "nt" else "clear")
     last_time = time.time()
 
+    viewport = np.full((SCREEN_H, SCREEN_W), 0)
+    z_buffer = np.full((SCREEN_H, SCREEN_W), np.inf)
+
     while True:
         now = time.time()
         dt = now - last_time
@@ -93,13 +96,16 @@ def main() -> None:
 
         camera["pitch"] = np.clip(camera["pitch"], -89, 89)
 
+        # Compute matrices
         model_matrix = math.compose(
             translations=model["translation"],
             rotations=[np.radians(a) for a in model["rotation"]],
             scales=model["scale"],
         )
         view_matrix = math.fps_view(
-            camera["eye"], np.radians(camera["yaw"]), np.radians(camera["pitch"])
+            eye=camera["eye"],
+            yaw=np.radians(camera["yaw"]),
+            pitch=np.radians(camera["pitch"]),
         )
         # terminal characters are not square, so adjust aspect ratio to compensate
         view_matrix = view_matrix @ math.scaling(2.0, 1.0, 1.0)
@@ -113,9 +119,11 @@ def main() -> None:
 
         clip_coords = model["mesh"] @ mvp_matrix
 
-        viewport = np.full((SCREEN_H, SCREEN_W), " ")
-        shade_chars = np.array(list(" ░▒▓█"))
-        sx_arr, sy_arr, shade_arr = render_faces(
+        viewport.fill(0)
+        z_buffer.fill(np.inf)
+        render_faces(
+            viewport,
+            z_buffer,
             model["faces"],
             clip_coords,
             model["normals"],
@@ -123,7 +131,6 @@ def main() -> None:
             SCREEN_W,
             SCREEN_H,
         )
-        viewport[sy_arr, sx_arr] = shade_chars[shade_arr]
 
         display(viewport, SCREEN_W, SCREEN_H, camera=camera, dt=dt)
 
