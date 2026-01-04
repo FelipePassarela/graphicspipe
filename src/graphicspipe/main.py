@@ -23,8 +23,8 @@ def main() -> None:
 
     model = {
         "mesh": torus_controller.create_mesh(),
-        "translation": np.array([0.0, 0.0, 3.0]),  # move away from camera
-        "scale": np.array([1.7, 1.0, 1.0]),  # terminal character are taller than wider
+        "translation": np.array([0.0, 0.0, 0.0]),
+        "scale": np.array([1.0, 1.0, 1.0]),
         "rotation": np.array([0.0, 0.0, 0.0]),
     }
     # model["scale"] /= np.max(np.abs(model["mesh"][:, :3]))  # normalize size
@@ -32,7 +32,7 @@ def main() -> None:
     camera = {
         "yaw": 0.0,
         "pitch": 0.0,
-        "eye": np.array([0.0, 0.0, 0.0]),
+        "eye": np.array([0.0, 0.0, -3.0]),  # move back to see the object
         "up": np.array([0.0, 1.0, 0.0]),
         "near": 0.1,
         "far": 100.0,
@@ -87,13 +87,15 @@ def main() -> None:
             rotations=model["rotation"],
             scales=model["scale"],
         )
-        world_coords = model["mesh"] @ world_matrix  # objects in row vector format
+        world_coords = model["mesh"] @ world_matrix
 
         # view transformation
         camera["pitch"] = np.clip(camera["pitch"], -89, 89)
         view_matrix = math.fps_view(
             camera["eye"], np.radians(camera["yaw"]), np.radians(camera["pitch"])
         )
+        # terminal characters are not square, so adjust aspect ratio to compensate
+        view_matrix = view_matrix @ math.scaling(2.0, 1.0, 1.0)
         view_coords = world_coords @ view_matrix
 
         z = view_coords[:, 2]
