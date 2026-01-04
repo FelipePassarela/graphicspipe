@@ -138,11 +138,6 @@ def main() -> None:
 
         display(viewport, SCREEN_W, SCREEN_H, camera=camera, dt=dt)
 
-        elapsed = time.time() - now
-        sleep_time = TARGET_FRAME_TIME - elapsed
-        if sleep_time > 0:
-            time.sleep(sleep_time)
-
 
 if __name__ == "__main__":
     main()
