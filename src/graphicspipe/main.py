@@ -35,6 +35,7 @@ def main() -> None:
         "up": np.array([0.0, 1.0, 0.0]),
         "near": 0.1,
         "far": 100.0,
+        "fov": 60.0,
     }
 
     input_state = InputState()
@@ -69,6 +70,10 @@ def main() -> None:
             camera["pitch"] += CAMERA_ROTATION_SPEED * FRAME_DELAY
         if input_state.is_pressed(keyboard.Key.down):
             camera["pitch"] -= CAMERA_ROTATION_SPEED * FRAME_DELAY
+        if input_state.is_pressed("+"):
+            camera["fov"] = min(150.0, camera["fov"] + 20.0 * FRAME_DELAY)
+        if input_state.is_pressed("-"):
+            camera["fov"] = max(60.0, camera["fov"] - 20.0 * FRAME_DELAY)
 
         if input_state.is_pressed(keyboard.Key.esc):
             key_listener.stop()
@@ -96,13 +101,18 @@ def main() -> None:
         z = z[clipping_mask]
 
         # perspective projection
-        xy = view_coords[:, :2]
-        z = np.expand_dims(z, axis=1)  # make z positive to avoid inverted projection
-        projected = xy / z
+        proj_matrix = math.perspective(
+            fov=np.radians(camera["fov"]),
+            near=camera["near"],
+            far=camera["far"],
+            aspect=SCREEN_W / SCREEN_H,
+        )
+        clip_coords = view_coords @ proj_matrix
+        clip_coords = clip_coords[:, :3] / clip_coords[:, 3:4]
 
         # viewport transformation
-        sx = (projected[:, 0] + 1) * SCREEN_W / 2.0
-        sy = (1 - projected[:, 1]) * SCREEN_H / 2.0
+        sx = (clip_coords[:, 0] + 1) * SCREEN_W / 2.0
+        sy = (1 - clip_coords[:, 1]) * SCREEN_H / 2.0
         screen_coords = np.stack([sx, sy], axis=1)
         screen_coords = np.round(screen_coords).astype(np.int32)
 
@@ -120,10 +130,14 @@ def main() -> None:
 def display(viewport: np.ndarray, camera: dict = None):
     lines = [bytes(row).decode("ascii") for row in viewport]
     if camera is not None:
+        camera_x = camera["eye"][0]
+        camera_y = camera["eye"][1]
+        camera_z = camera["eye"][2]
         lines.insert(
             0,
-            f"Camera Position: ({camera['eye'][0]:.2f}, {camera['eye'][1]:.2f}, {camera['eye'][2]:.2f}) "
-            f"Yaw: {camera['yaw']:.2f} Pitch: {camera['pitch']:.2f}",
+            f"Camera Position: ({camera_x:.2f}, {camera_y:.2f}, {camera_z:.2f}) "
+            f"Yaw: {camera['yaw']:.2f} Pitch: {camera['pitch']:.2f} "
+            f"FOV: {camera['fov']:.2f}",
         )
     frame = "\n".join(lines)
     sys.stdout.write("\x1b[H" + frame)

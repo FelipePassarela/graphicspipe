@@ -84,3 +84,15 @@ def forward(yaw: float, pitch: float) -> np.ndarray:
     forward = forward @ rotation_x(pitch) @ rotation_y(yaw)
     forward = forward[:-1] / np.linalg.norm(forward)
     return forward
+
+
+def perspective(fov: float, near: float, far: float, aspect: float) -> np.ndarray:
+    f = 1.0 / np.tan(fov / 2.0)
+    return np.array(
+        [
+            [f / aspect, 0.0, 0.0, 0.0],
+            [0.0, f, 0.0, 0.0],
+            [0.0, 0.0, (far + near) / (near - far), 1.0],
+            [0.0, 0.0, (2.0 * far * near) / (near - far), 0.0],
+        ]
+    )
