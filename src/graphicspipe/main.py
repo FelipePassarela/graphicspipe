@@ -10,7 +10,6 @@ from graphicspipe.renderer import display, reder_faces
 
 SCREEN_W = 120
 SCREEN_H = 40
-TARGET_FRAME_TIME = 1.0 / 60.0
 
 MOVE_SPEED = 2.0
 CAMERA_ROTATION_SPEED = 45.0
@@ -92,38 +91,28 @@ def main() -> None:
             key_listener.stop()
             exit()
 
-        world_matrix = math.compose(
+        camera["pitch"] = np.clip(camera["pitch"], -89, 89)
+
+        model_matrix = math.compose(
             translations=model["translation"],
             rotations=[np.radians(a) for a in model["rotation"]],
             scales=model["scale"],
         )
-        world_coords = model["mesh"] @ world_matrix
-
-        # view transformation
-        camera["pitch"] = np.clip(camera["pitch"], -89, 89)
         view_matrix = math.fps_view(
             camera["eye"], np.radians(camera["yaw"]), np.radians(camera["pitch"])
         )
         # terminal characters are not square, so adjust aspect ratio to compensate
         view_matrix = view_matrix @ math.scaling(2.0, 1.0, 1.0)
-        view_coords = world_coords @ view_matrix
-
-        z = view_coords[:, 2]
-        clipping_mask = (z > camera["near"]) & (z < camera["far"])
-        # TODO: Make clipping more robust
-        view_coords[~clipping_mask] = np.array([0.0, 0.0, camera["far"] + 1, 1.0])
-
-        # perspective projection
         proj_matrix = math.perspective(
             fov=np.radians(camera["fov"]),
             near=camera["near"],
             far=camera["far"],
             aspect=SCREEN_W / SCREEN_H,
         )
-        clip_coords = view_coords @ proj_matrix
-        clip_coords = clip_coords[:, :3] / clip_coords[:, 3:4]
+        mvp_matrix = model_matrix @ view_matrix @ proj_matrix
 
-        # viewport transformation
+        clip_coords = model["mesh"] @ mvp_matrix
+
         viewport = np.full((SCREEN_H, SCREEN_W), " ")
         shade_chars = np.array(list(" ░▒▓█"))
         sx_arr, sy_arr, shade_arr = reder_faces(

@@ -14,13 +14,10 @@ def reder_faces(
     screen_w: int,
     screen_h: int,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    max_faces = len(faces)
-    sx_arr = np.empty(max_faces, dtype=np.int32)
-    sy_arr = np.empty(max_faces, dtype=np.int32)
-    shade_arr = np.empty(max_faces, dtype=np.int32)
+    sx_arr = np.empty(len(faces), dtype=np.int32)
+    sy_arr = np.empty(len(faces), dtype=np.int32)
+    shade_arr = np.empty(len(faces), dtype=np.int32)
     count = 0
-
-    num_clip_coords = len(clip_coords)
 
     for i in range(len(faces)):
         face = faces[i]
@@ -28,20 +25,41 @@ def reder_faces(
         v2_idx = face[1, 0]
         v3_idx = face[2, 0]
 
-        if (
-            v1_idx >= num_clip_coords
-            or v2_idx >= num_clip_coords
-            or v3_idx >= num_clip_coords
-        ):
-            continue
-
         v1 = clip_coords[v1_idx]
         v2 = clip_coords[v2_idx]
         v3 = clip_coords[v3_idx]
 
+        v1_w = v1[3]
+        v2_w = v2[3]
+        v3_w = v3[3]
+
+        # Reject vertices behind the camera
+        if v1_w <= 0 or v2_w <= 0 or v3_w <= 0:
+            continue
+
+        # Frustum clipping (in clip space: -w <= x,y,z <= w)
+        if not (
+            -v1_w <= v1[0] <= v1_w and -v2_w <= v2[0] <= v2_w and -v3_w <= v3[0] <= v3_w
+        ):
+            continue
+        if not (
+            -v1_w <= v1[1] <= v1_w and -v2_w <= v2[1] <= v2_w and -v3_w <= v3[1] <= v3_w
+        ):
+            continue
+        # TODO: implement z-clipping properly
+        # if not (
+        #     -v1_w <= v1[2] <= v1_w and -v2_w <= v2[2] <= v2_w and -v3_w <= v3[2] <= v3_w
+        # ):
+        #     continue
+
+        v1 /= v1[3]
+        v2 /= v2[3]
+        v3 /= v3[3]
+
         # Backface culling
-        # This is currently disabled because, for now, only small vertices on the face
-        # are rendered, so backface culling would make the scene feeling empty.
+        # This is currently disabled because, for now, only small vertices on the center
+        # of the faces are rendered, so backface culling would make the scene feeling
+        # empty.
         # area = (v2[0] - v1[0]) * (v3[1] - v1[1]) - (v3[0] - v1[0]) * (v2[1] - v1[1])
         # if area <= 0:
         #     continue
