@@ -78,9 +78,9 @@ def reder_faces(
         n1 = normals[n1_idx]
         n2 = normals[n2_idx]
         n3 = normals[n3_idx]
-        n1_intensity = np.dot(n1, light_dir)
-        n2_intensity = np.dot(n2, light_dir)
-        n3_intensity = np.dot(n3, light_dir)
+        n1_intensity = np.dot(n1, -light_dir)
+        n2_intensity = np.dot(n2, -light_dir)
+        n3_intensity = np.dot(n3, -light_dir)
 
         intensity = (n1_intensity + n2_intensity + n3_intensity) / 3.0
         intensity = max(0.0, intensity)

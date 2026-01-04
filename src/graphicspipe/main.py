@@ -119,7 +119,7 @@ def main() -> None:
             model["faces"],
             clip_coords,
             model["normals"],
-            -light_source["direction"],
+            light_source["direction"],
             SCREEN_W,
             SCREEN_H,
         )
