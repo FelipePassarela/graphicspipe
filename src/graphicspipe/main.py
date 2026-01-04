@@ -5,7 +5,7 @@ import time
 import numpy as np
 from pynput import keyboard
 
-from graphicspipe import math
+from graphicspipe import math, mesh
 from graphicspipe.input_state import InputState
 from graphicspipe.torus_controller import TorusController
 
@@ -19,10 +19,12 @@ FOV_SPEED = 20.0
 
 
 def main() -> None:
-    torus_controller = TorusController(interval=3)
+    model_mesh, normals, faces = mesh.parse("assets/plane.obj")
 
     model = {
-        "mesh": torus_controller.create_mesh(),
+        "mesh": model_mesh,
+        "normals": normals,
+        "faces": faces,
         "translation": np.array([0.0, 0.0, 0.0]),
         "scale": np.array([1.0, 1.0, 1.0]),
         "rotation": np.array([0.0, 0.0, 0.0]),
@@ -80,7 +82,7 @@ def main() -> None:
             key_listener.stop()
             exit()
 
-        model["mesh"] = torus_controller.update(model["mesh"])
+        model["rotation"][1] += 180.0 * dt
 
         world_matrix = math.compose(
             translations=model["translation"],
