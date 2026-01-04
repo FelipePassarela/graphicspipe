@@ -5,7 +5,7 @@ import time
 import numpy as np
 from pynput import keyboard
 
-from graphicspipe import math, mesh
+from graphicspipe import math
 from graphicspipe.input_state import InputState
 from graphicspipe.torus_controller import TorusController
 
@@ -22,12 +22,12 @@ def main() -> None:
     torus_controller = TorusController(interval=3)
 
     model = {
-        "mesh": mesh.parse("assets/plane.obj"),
-        "translation": np.array([0.0, 0.0, 1.8]),
-        "scale": np.array([1.0, 1.0, 1.0]),
-        "rotation": np.array([90.0, 0.0, 0.0]),
+        "mesh": torus_controller.create_mesh(),
+        "translation": np.array([0.0, 0.0, 3.0]),  # move away from camera
+        "scale": np.array([1.7, 1.0, 1.0]),  # terminal character are taller than wider
+        "rotation": np.array([0.0, 0.0, 0.0]),
     }
-    model["scale"] /= np.max(np.abs(model["mesh"][:, :3]))  # normalize size
+    # model["scale"] /= np.max(np.abs(model["mesh"][:, :3]))  # normalize size
 
     camera = {
         "yaw": 0.0,
@@ -48,7 +48,7 @@ def main() -> None:
     os.system("cls" if os.name == "nt" else "clear")
 
     while True:
-        # model["rotation"][1] +=wswsws np.radians(180) * FRAME_DELAY
+        model["rotation"][1] += np.radians(180) * FRAME_DELAY
 
         forward = math.forward(np.radians(camera["yaw"]), np.radians(camera["pitch"]))
         right = np.cross(camera["up"], forward)
@@ -80,7 +80,7 @@ def main() -> None:
             key_listener.stop()
             exit()
 
-        # model["mesh"] = torus_controller.update(model["mesh"])
+        model["mesh"] = torus_controller.update(model["mesh"])
 
         world_matrix = math.compose(
             translations=model["translation"],
