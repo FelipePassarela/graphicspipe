@@ -6,10 +6,12 @@ readme = "README.md"
 authors = [
     { name = "FelipePassarela", email = "126916744+FelipePassarela@users.noreply.github.com" }
 ]
-requires-python = ">=3.13"
+requires-python = ">=3.9,<3.10"
 dependencies = [
-    "numpy>=2.4.0",
-    "pynput>=1.8.1",
+    "numba>=0.47.0",
+    "numpy>=1.12.1",
+    "pynput>=1.7.2",
+    "scipy>=0.19.1",
 ]
 
 [project.scripts]

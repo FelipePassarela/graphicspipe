@@ -1,5 +1,4 @@
 import os
-import sys
 import time
 
 import numpy as np
@@ -7,6 +6,7 @@ from pynput import keyboard
 
 from graphicspipe import math, mesh
 from graphicspipe.input_state import InputState
+from graphicspipe.renderer import display, reder_faces
 
 SCREEN_W = 120
 SCREEN_H = 40
@@ -60,7 +60,6 @@ def main() -> None:
         now = time.time()
         dt = now - last_time
         last_time = now
-        dt = min(dt, 0.1)  # avoid large jumps
 
         forward = math.forward(np.radians(camera["yaw"]), np.radians(camera["pitch"]))
         right = np.cross(camera["up"], forward)
@@ -92,11 +91,9 @@ def main() -> None:
             key_listener.stop()
             exit()
 
-        model["rotation"][1] += 180.0 * dt
-
         world_matrix = math.compose(
             translations=model["translation"],
-            rotations=model["rotation"],
+            rotations=[np.radians(a) for a in model["rotation"]],
             scales=model["scale"],
         )
         world_coords = model["mesh"] @ world_matrix
@@ -112,8 +109,8 @@ def main() -> None:
 
         z = view_coords[:, 2]
         clipping_mask = (z > camera["near"]) & (z < camera["far"])
-        view_coords = view_coords[clipping_mask]
-        z = z[clipping_mask]
+        # TODO: Make clipping more robust
+        view_coords[~clipping_mask] = np.array([0.0, 0.0, camera["far"] + 1, 1.0])
 
         # perspective projection
         proj_matrix = math.perspective(
@@ -127,65 +124,24 @@ def main() -> None:
 
         # viewport transformation
         viewport = np.full((SCREEN_H, SCREEN_W), " ")
+        shade_chars = " ░▒▓█"
+        sx_arr, sy_arr, shade_arr = reder_faces(
+            model["faces"],
+            clip_coords,
+            model["normals"],
+            -light_source["direction"],
+            SCREEN_W,
+            SCREEN_H,
+        )
+        for i in range(len(sx_arr)):
+            viewport[sy_arr[i], sx_arr[i]] = shade_chars[shade_arr[i]]
 
-        for face in model["faces"]:
-            try:
-                v1_idx, v2_idx, v3_idx = face[:, 0]
-                v1 = clip_coords[v1_idx]
-                v2 = clip_coords[v2_idx]
-                v3 = clip_coords[v3_idx]
-            except IndexError:
-                continue
-
-            center = (v1 + v2 + v3) / 3.0
-            sx = int((center[0] + 1) * SCREEN_W / 2.0)
-            sy = int((1 - center[1]) * SCREEN_H / 2.0)
-            if not (0 <= sx < SCREEN_W and 0 <= sy < SCREEN_H):
-                continue
-
-            n1_idx, n2_idx, n3_idx = face[:, 1]
-            n1_intesity = np.dot(model["normals"][n1_idx], light_source["direction"])
-            n2_intesity = np.dot(model["normals"][n2_idx], light_source["direction"])
-            n3_intesity = np.dot(model["normals"][n3_idx], light_source["direction"])
-            intensity = (n1_intesity + n2_intesity + n3_intesity) / 3.0
-            if intensity < 0:  # backface culling
-                continue
-
-            shade_chars = " ░▒▓█"
-            shade_index = min(int(len(shade_chars) * intensity), len(shade_chars) - 1)
-            viewport[sy, sx] = shade_chars[shade_index]
-
-        display(viewport, camera=camera)
+        display(viewport, SCREEN_W, SCREEN_H, camera=camera, dt=dt)
 
         elapsed = time.time() - now
         sleep_time = TARGET_FRAME_TIME - elapsed
         if sleep_time > 0:
             time.sleep(sleep_time)
-
-
-def display(viewport: np.ndarray, camera: dict = None, dt: float = None) -> None:
-    lines = ["".join(c for c in row) for row in viewport]
-    message = "Graphicspipe - Press ESC to quit"
-    lines[SCREEN_H - 1] = message.ljust(SCREEN_W)
-
-    debug_info = ""
-    if camera is not None:
-        camera_x = camera["eye"][0]
-        camera_y = camera["eye"][1]
-        camera_z = camera["eye"][2]
-        debug_info += (
-            f"Camera Position: ({camera_x:.2f}, {camera_y:.2f}, {camera_z:.2f}) "
-            f"Yaw: {camera['yaw']:.2f} Pitch: {camera['pitch']:.2f} "
-            f"FOV: {camera['fov']:.2f} "
-        )
-    if dt is not None:
-        fps = 1.0 / dt if dt > 0 else 0.0
-        debug_info += f"FPS: {fps:.2f}"
-    lines[0] = debug_info.ljust(SCREEN_W)
-
-    frame = "\n".join(lines)
-    sys.stdout.write("\x1b[H" + frame)
-    sys.stdout.flush()
 
 
 if __name__ == "__main__":

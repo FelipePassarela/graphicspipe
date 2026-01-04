@@ -8,7 +8,10 @@ numpy==2.0.2
     # via
     #   graphicspipe (pyproject.toml)
     #   numba
+    #   scipy
 pynput==1.8.1
+    # via graphicspipe (pyproject.toml)
+scipy==1.13.1
     # via graphicspipe (pyproject.toml)
 six==1.17.0
     # via pynput
