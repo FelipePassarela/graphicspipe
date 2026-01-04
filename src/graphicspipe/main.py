@@ -125,7 +125,7 @@ def main() -> None:
 
         # viewport transformation
         viewport = np.full((SCREEN_H, SCREEN_W), " ")
-        shade_chars = " ░▒▓█"
+        shade_chars = np.array(list(" ░▒▓█"))
         sx_arr, sy_arr, shade_arr = reder_faces(
             model["faces"],
             clip_coords,
@@ -134,8 +134,7 @@ def main() -> None:
             SCREEN_W,
             SCREEN_H,
         )
-        for i in range(len(sx_arr)):
-            viewport[sy_arr[i], sx_arr[i]] = shade_chars[shade_arr[i]]
+        viewport[sy_arr, sx_arr] = shade_chars[shade_arr]
 
         display(viewport, SCREEN_W, SCREEN_H, camera=camera, dt=dt)
 
