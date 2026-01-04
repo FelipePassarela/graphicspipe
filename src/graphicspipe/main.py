@@ -20,6 +20,7 @@ FOV_SPEED = 20.0
 def main() -> None:
     model_mesh, normals, faces = mesh.parse("assets/plane.obj")
 
+    # TODO: make these dicts be classes
     model = {
         "mesh": model_mesh,
         "normals": normals,
