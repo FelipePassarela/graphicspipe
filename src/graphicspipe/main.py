@@ -31,9 +31,9 @@ def main() -> None:
     model["scale"] /= np.max(np.abs(model["mesh"][:, :3]))  # normalize size
 
     camera = {
-        "yaw": -75.0,
-        "pitch": 10.0,
-        "eye": np.array([-1.2, 0.0, -0.3]),  # move back to see the object
+        "yaw": 0.0,
+        "pitch": -15.0,
+        "eye": np.array([0.0, 0.4, -0.7]),  # move back to see the object
         "up": np.array([0.0, 1.0, 0.0]),
         "near": 0.1,
         "far": 100.0,
@@ -94,6 +94,7 @@ def main() -> None:
             key_listener.stop()
             exit()
 
+        model["rotation"][1] += 90.0 * dt  # auto-rotate model
         camera["pitch"] = np.clip(camera["pitch"], -89, 89)
 
         # Compute matrices
