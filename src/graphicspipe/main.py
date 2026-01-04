@@ -15,6 +15,7 @@ FRAME_DELAY = 1 / 60.0
 
 MOVE_SPEED = 2.0
 CAMERA_ROTATION_SPEED = 45.0
+FOV_SPEED = 20.0
 
 
 def main() -> None:
@@ -71,9 +72,9 @@ def main() -> None:
         if input_state.is_pressed(keyboard.Key.down):
             camera["pitch"] -= CAMERA_ROTATION_SPEED * FRAME_DELAY
         if input_state.is_pressed("+"):
-            camera["fov"] = min(150.0, camera["fov"] + 20.0 * FRAME_DELAY)
+            camera["fov"] = min(150.0, camera["fov"] + FOV_SPEED * FRAME_DELAY)
         if input_state.is_pressed("-"):
-            camera["fov"] = max(60.0, camera["fov"] - 20.0 * FRAME_DELAY)
+            camera["fov"] = max(60.0, camera["fov"] - FOV_SPEED * FRAME_DELAY)
 
         if input_state.is_pressed(keyboard.Key.esc):
             key_listener.stop()
