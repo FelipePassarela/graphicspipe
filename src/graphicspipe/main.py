@@ -6,7 +6,7 @@ from pynput import keyboard
 
 from graphicspipe import math, mesh
 from graphicspipe.input_state import InputState
-from graphicspipe.renderer import display, reder_faces
+from graphicspipe.renderer import display, render_faces
 
 SCREEN_W = 120
 SCREEN_H = 40
@@ -115,7 +115,7 @@ def main() -> None:
 
         viewport = np.full((SCREEN_H, SCREEN_W), " ")
         shade_chars = np.array(list(" ░▒▓█"))
-        sx_arr, sy_arr, shade_arr = reder_faces(
+        sx_arr, sy_arr, shade_arr = render_faces(
             model["faces"],
             clip_coords,
             model["normals"],

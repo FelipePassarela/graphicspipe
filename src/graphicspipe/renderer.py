@@ -6,7 +6,7 @@ from numba import njit
 
 
 @njit(cache=True)
-def reder_faces(
+def render_faces(
     faces: np.ndarray,
     clip_coords: np.ndarray,
     normals: np.ndarray,
