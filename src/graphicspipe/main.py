@@ -108,13 +108,12 @@ def main() -> None:
             yaw=np.radians(camera["yaw"]),
             pitch=np.radians(camera["pitch"]),
         )
-        # terminal characters are not square, so adjust aspect ratio to compensate
-        view_matrix = view_matrix @ math.scaling(2.0, 1.0, 1.0)
         proj_matrix = math.perspective(
             fov=np.radians(camera["fov"]),
             near=camera["near"],
             far=camera["far"],
-            aspect=SCREEN_W / SCREEN_H,
+            # terminal characters are not square, so adjust aspect ratio to compensate
+            aspect=SCREEN_W / (2.0 * SCREEN_H),
         )
         mvp_matrix = model_matrix @ view_matrix @ proj_matrix
 
