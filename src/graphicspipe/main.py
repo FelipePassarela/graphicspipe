@@ -119,6 +119,13 @@ def main() -> None:
 
         clip_coords = model["mesh"] @ mvp_matrix
 
+        normals = (
+            model["normals"]
+            @ math.rotation_x(np.radians(model["rotation"][0]))
+            @ math.rotation_y(np.radians(model["rotation"][1]))
+            @ math.rotation_z(np.radians(model["rotation"][2]))
+        )
+
         viewport.fill(0)
         z_buffer.fill(np.inf)
         render_faces(
@@ -126,7 +133,7 @@ def main() -> None:
             z_buffer,
             model["faces"],
             clip_coords,
-            model["normals"],
+            normals,
             light_source["direction"],
             SCREEN_W,
             SCREEN_H,

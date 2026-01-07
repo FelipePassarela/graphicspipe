@@ -15,7 +15,7 @@ def parse(filename: str) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
             elif line.startswith("vn "):
                 parts = line.strip().split()
                 nx, ny, nz = map(float, parts[1:4])
-                normals.append([nx, ny, nz])
+                normals.append([nx, ny, nz, 0])
             elif line.startswith("f "):
                 parts = line.strip().split()[1:]
                 face = []

@@ -15,6 +15,10 @@ def render_faces(
     screen_w: int,
     screen_h: int,
 ) -> None:
+    # 3D to 4D light direction for dot product with 4D normals
+    if light_dir.shape[0] == 3:
+        light_dir = np.array([*light_dir, 0.0])
+
     for i in range(len(faces)):
         face = faces[i]
         v1 = clip_coords[face[0, 0]].copy()
