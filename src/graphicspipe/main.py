@@ -44,7 +44,7 @@ def main() -> None:
         "position": np.array([-1.0, -5.0, 5.0]),
         "direction": np.array([0.0, 0.0, 1.0]),
     }
-    light_source["direction"] /= np.array([0.0, 0.0, 0.0]) - light_source["position"]
+    light_source["direction"] = np.array([0.0, 0.0, 0.0]) - light_source["position"]
     light_source["direction"] /= np.linalg.norm(light_source["direction"])
 
     input_state = InputState()
