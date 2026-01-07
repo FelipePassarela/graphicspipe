@@ -94,7 +94,7 @@ def main() -> None:
             key_listener.stop()
             exit()
 
-        model["rotation"][1] += 90.0 * dt  # auto-rotate model
+        model["rotation"][1] += 45.0 * dt  # auto-rotate model
         camera["pitch"] = np.clip(camera["pitch"], -89, 89)
 
         # Compute matrices
