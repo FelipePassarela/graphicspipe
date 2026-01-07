@@ -41,8 +41,8 @@ def main() -> None:
     }
 
     light_source = {
-        "position": np.array([-1.0, -5.0, 5.0]),
-        "direction": np.array([0.0, 0.0, 1.0]),
+        "position": camera["eye"],
+        "direction": np.array([0.0, 0.0, 0.0]),  # placeholder
     }
     light_source["direction"] = np.array([0.0, 0.0, 0.0]) - light_source["position"]
     light_source["direction"] /= np.linalg.norm(light_source["direction"])
@@ -97,6 +97,10 @@ def main() -> None:
         model["rotation"][1] += 45.0 * dt  # auto-rotate model
         camera["pitch"] = np.clip(camera["pitch"], -89, 89)
 
+        light_source["position"] = camera["eye"]
+        light_source["direction"] = np.array([0.0, 0.0, 0.0]) - light_source["position"]
+        light_source["direction"] /= np.linalg.norm(light_source["direction"])
+
         # Compute matrices
         model_matrix = math.compose(
             translations=model["translation"],
@@ -116,7 +120,6 @@ def main() -> None:
             aspect=SCREEN_W / (2.0 * SCREEN_H),
         )
         mvp_matrix = model_matrix @ view_matrix @ proj_matrix
-
         clip_coords = model["mesh"] @ mvp_matrix
 
         normals = (
