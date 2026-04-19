@@ -11,7 +11,7 @@ from graphicspipe.renderer import display, render_faces
 SCREEN_W = 120
 SCREEN_H = 40
 
-MOVE_SPEED = 1.5
+MOVE_SPEED = 0.2
 CAMERA_ROTATION_SPEED = 45.0
 FOV_SPEED = 20.0
 
@@ -103,8 +103,7 @@ def main() -> None:
         camera["pitch"] = np.clip(camera["pitch"], -89, 89)
 
         light_source["position"] = camera["eye"]
-        light_source["direction"] = np.array([0.0, 0.0, 0.0]) - light_source["position"]
-        light_source["direction"] /= np.linalg.norm(light_source["direction"])
+        light_source["direction"] = forward
 
         # Compute matrices
         model_matrix = math.compose(
