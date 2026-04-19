@@ -35,18 +35,22 @@ def render_faces(
             continue
 
         # Frustum clipping (in clip space: -w <= x,y,z <= w)
-        if not (
-            -v1_w <= v1[0] <= v1_w and -v2_w <= v2[0] <= v2_w and -v3_w <= v3[0] <= v3_w
-        ):
-            continue
-        if not (
-            -v1_w <= v1[1] <= v1_w and -v2_w <= v2[1] <= v2_w and -v3_w <= v3[1] <= v3_w
-        ):
-            continue
-        if not (
-            -v1_w <= v1[2] <= v1_w and -v2_w <= v2[2] <= v2_w and -v3_w <= v3[2] <= v3_w
-        ):
-            continue
+        # This is currently disabled to allow rendering of objects that are partially
+        # off-screen. If it causes issues, we can re-enable it and add more robust
+        # clipping later.
+
+        # if not (
+        #     -v1_w <= v1[0] <= v1_w and -v2_w <= v2[0] <= v2_w and -v3_w <= v3[0] <= v3_w
+        # ):
+        #     continue
+        # if not (
+        #     -v1_w <= v1[1] <= v1_w and -v2_w <= v2[1] <= v2_w and -v3_w <= v3[1] <= v3_w
+        # ):
+        #     continue
+        # if not (
+        #     -v1_w <= v1[2] <= v1_w and -v2_w <= v2[2] <= v2_w and -v3_w <= v3[2] <= v3_w
+        # ):
+        #     continue
 
         v1 /= v1_w
         v2 /= v2_w
