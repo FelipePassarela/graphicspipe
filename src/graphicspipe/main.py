@@ -11,7 +11,7 @@ from graphicspipe.renderer import display, render_faces
 SCREEN_W = 120
 SCREEN_H = 40
 
-MOVE_SPEED = 2.0
+MOVE_SPEED = 1.5
 CAMERA_ROTATION_SPEED = 45.0
 FOV_SPEED = 20.0
 
