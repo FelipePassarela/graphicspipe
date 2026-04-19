@@ -27,6 +27,7 @@ def main() -> None:
         "translation": np.array([0.0, 0.0, 0.0]),
         "scale": np.array([1.0, 1.0, 1.0]),
         "rotation": np.array([90.0, 0.0, 0.0]),
+        "autorotate": True,
     }
     model["scale"] /= np.max(np.abs(model["mesh"][:, :3]))  # normalize size
 
@@ -90,11 +91,15 @@ def main() -> None:
         if input_state.is_pressed("-"):
             camera["fov"] = max(60.0, camera["fov"] - FOV_SPEED * dt)
 
+        model["autorotate"] = input_state.is_pressed("r")
+
         if input_state.is_pressed(keyboard.Key.esc):
             key_listener.stop()
             exit()
 
-        model["rotation"][1] += 45.0 * dt  # auto-rotate model
+        if model["autorotate"]:
+            model["rotation"][1] += 45.0 * dt
+
         camera["pitch"] = np.clip(camera["pitch"], -89, 89)
 
         light_source["position"] = camera["eye"]
