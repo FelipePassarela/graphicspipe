@@ -1,4 +1,5 @@
 import sys
+from typing import Optional
 
 import numpy as np
 from numba import njit
@@ -112,8 +113,8 @@ def display(
     viewport: np.ndarray,
     screen_w: int,
     screen_h: int,
-    camera: dict = None,
-    dt: float = None,
+    camera: Optional[dict] = None,
+    dt: Optional[float] = None,
 ) -> None:
     shade_chars = np.array(list(" ░▒▓█"))
     viewport_chars = shade_chars[viewport]
