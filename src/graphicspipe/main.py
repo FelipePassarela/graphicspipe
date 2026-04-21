@@ -6,7 +6,7 @@ from pynput import keyboard
 
 from graphicspipe import math, mesh
 from graphicspipe.input_state import InputState
-from graphicspipe.renderer import display, render_faces
+from graphicspipe.renderer import display, rasterize
 
 SCREEN_W = 120
 SCREEN_H = 40
@@ -135,7 +135,7 @@ def main() -> None:
 
         viewport.fill(0)
         z_buffer.fill(np.inf)
-        render_faces(
+        rasterize(
             viewport,
             z_buffer,
             model["faces"],

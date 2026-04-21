@@ -6,7 +6,7 @@ from numba import njit
 
 
 @njit(cache=True)
-def render_faces(
+def rasterize(
     viewport: np.ndarray,
     z_buffer: np.ndarray,
     faces: np.ndarray,
@@ -120,6 +120,11 @@ def display(
     camera: Optional[dict] = None,
     dt: Optional[float] = None,
 ) -> None:
+    """Display the rendered viewport in the terminal.
+
+    Uses unicode characters to represent different levels of shading based on the \
+        intensity. Also displays debug informations.
+    """
     shade_chars = np.array(list(" ░▒▓█"))
     viewport_chars = shade_chars[viewport]
     lines = ["".join(row) for row in viewport_chars]
