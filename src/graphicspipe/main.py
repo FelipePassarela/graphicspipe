@@ -15,11 +15,18 @@ MOVE_SPEED = 0.2
 CAMERA_ROTATION_SPEED = 45.0
 FOV_SPEED = 20.0
 
+# TODO: Extract configuration constants to a separate file or class (config.py)
+# TODO: Add command-line arguments for configuration (e.g. screen size, model path, etc.)
+# TODO: Extract domain entities (i.e. Model, Camera, Light) to a separate layer for
+#   better organization and maintainability
+# TODO: Extract transformation logic to a separate class (e.g. Transform)
+# TODO: Extract business rules to a separate class (e.g. CameraSystem, ModelSystem)
+# TODO: Add more models and allow switching between them at runtime
+
 
 def main() -> None:
     model_mesh, normals, faces = mesh.parse("assets/plane.obj")
 
-    # TODO: make these dicts be classes
     model = {
         "mesh": model_mesh,
         "normals": normals,
