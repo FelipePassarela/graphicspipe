@@ -43,7 +43,7 @@ def main() -> None:
 
     light_source = {
         "position": camera["eye"],
-        "direction": np.array([0.0, 0.0, 0.0]),  # placeholder
+        "direction": np.array([0.0, 0.0, 0.0]),
     }
     light_source["direction"] = np.array([0.0, 0.0, 0.0]) - light_source["position"]
     light_source["direction"] /= np.linalg.norm(light_source["direction"])
