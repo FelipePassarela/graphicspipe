@@ -129,7 +129,7 @@ def display(
     viewport_chars = shade_chars[viewport]
     lines = ["".join(row) for row in viewport_chars]
 
-    message = "Graphicspipe - Press ESC to quit"
+    message = "3D Engine on Terminal - Press ESC to quit"
     lines[screen_h - 1] = message.ljust(screen_w)
 
     debug_info = ""
