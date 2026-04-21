@@ -13,6 +13,7 @@ from scratch, using only basic Python and NumPy for matrix operations.
 - **Shading**: Simple shading based on the angle of the surface to a light source.
 - **Terminal Rendering**: Renders the final output in the terminal using unicode characters.
 - **Performance**: Optimized for real-time rendering in the terminal, achieving smooth animations.
+- **Interactive Controls**: Allows user interaction to move the camera and rotate the model.
 
 ## Usage
 
